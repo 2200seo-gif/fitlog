@@ -975,8 +975,7 @@ function GoalScreen({data,sportColors,customSports}){
 }
 
 // ── 설정 ─────────────────────────────────────────────
-function SettingScreen({profile,setProfile,sportColors,setSportColors,customSports,setCustomSports}){
-  const [units,setUnits]=useState({distance:"km",weight:"kg",pace:"min/km"});
+function SettingScreen({profile,setProfile,sportColors,setSportColors,customSports,setCustomSports,hiddenSports,setHiddenSports}){  const [units,setUnits]=useState({distance:"km",weight:"kg",pace:"min/km"});
   const [noti,setNoti]=useState({workout:true,goal:true,rest:false,weekly:true});
   const [section,setSection]=useState("profile");
   const [saved,setSaved]=useState(false);
@@ -1024,7 +1023,7 @@ function SettingScreen({profile,setProfile,sportColors,setSportColors,customSpor
       {section==="colors"&&(
         <div style={{background:"#fff",borderRadius:18,padding:18,boxShadow:"0 2px 16px rgba(0,0,0,0.05)"}}>
           <div style={{fontSize:13,fontWeight:700,color:"#888",marginBottom:16}}>종목별 컬러 선택</div>
-          {Object.entries(allSportsMap).map(([k,sp],i,arr)=>{
+          {Object.entries(allSportsMap).filter(([k])=>!hiddenSports.includes(k)).map(([k,sp],i,arr)=>{
             const col=sportColors[k]||sp.color;
             const isOpen=colorTarget===k;
             return(
@@ -1033,7 +1032,7 @@ function SettingScreen({profile,setProfile,sportColors,setSportColors,customSpor
                   <div style={{width:44,height:44,borderRadius:14,background:mkGrad(col),display:"flex",alignItems:"center",justifyContent:"center",fontSize:22}}>{sp.emoji}</div>
                   <span style={{flex:1,fontSize:14,fontWeight:700,color:"#1A1A2E"}}>{sp.label}</span>
                   <div onClick={()=>setColorTarget(isOpen?null:k)} style={{width:36,height:36,borderRadius:10,background:col,cursor:"pointer",border:"3px solid #fff",boxShadow:`0 2px 8px ${col}66`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16}}>🎨</div>
-                  {customSports.some(s=>s.id===k)&&<button onClick={()=>setCustomSports(p=>p.filter(s=>s.id!==k))} style={{width:30,height:30,borderRadius:8,border:"1.5px solid #EFEFEF",background:"#fff",color:"#FFB3B3",fontSize:16,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>×</button>}
+                  <button onClick={()=>{if(customSports.some(s=>s.id===k)){setCustomSports(p=>p.filter(s=>s.id!==k));}else{setHiddenSports(p=>[...p,k]);}}} style={{width:30,height:30,borderRadius:8,border:"1.5px solid #EFEFEF",background:"#fff",color:"#FFB3B3",fontSize:16,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>×</button>
                 </div>
                 {isOpen&&<div style={{marginBottom:8}}><ColorPalette currentColor={col} onSelect={v=>{setSportColors(p=>({...p,[k]:v}));setColorTarget(null);}}/></div>}
               </div>
@@ -1089,6 +1088,7 @@ export default function App(){
 const [profile,setProfile]=useState(()=>JSON.parse(localStorage.getItem('profile'))||{name:"김민준",age:"32",height:"178",weight:"72",gender:"male"});
 const [sportColors,setSportColors]=useState(()=>JSON.parse(localStorage.getItem('sportColors'))||{running:"#FF6B6B",swimming:"#4ECDC4",crossfit:"#F4A261",gym:"#52C47A",cycling:"#9B8EC4"});
 const [customSports,setCustomSports]=useState(()=>JSON.parse(localStorage.getItem('customSports'))||[]);
+const [hiddenSports,setHiddenSports]=useState(()=>JSON.parse(localStorage.getItem('hiddenSports'))||[]);
   const NAV=[{ic:"📅",l:"달력",k:"calendar"},{ic:"📊",l:"통계",k:"stats"},{ic:"🎯",l:"목표",k:"goal"},{ic:"⚙️",l:"설정",k:"setting"}];
   const allSportsMap={...BASE_SPORTS,...Object.fromEntries(customSports.map(s=>[s.id,s]))};
   const isCustomSport=(k)=>customSports.some(s=>s.id===k);
@@ -1108,6 +1108,7 @@ const [customSports,setCustomSports]=useState(()=>JSON.parse(localStorage.getIte
 useEffect(()=>{localStorage.setItem('profile',JSON.stringify(profile));},[profile]);
 useEffect(()=>{localStorage.setItem('sportColors',JSON.stringify(sportColors));},[sportColors]);
 useEffect(()=>{localStorage.setItem('customSports',JSON.stringify(customSports));},[customSports]);
+useEffect(()=>{localStorage.setItem('hiddenSports',JSON.stringify(hiddenSports));},[hiddenSports]);
   return(
     <div style={{fontFamily:"'Pretendard','Apple SD Gothic Neo',sans-serif",background:"#F5F5F7",minHeight:"100vh"}}>
       <div style={{background:"rgba(255,255,255,0.85)",backdropFilter:"blur(20px)",borderBottom:"1px solid rgba(0,0,0,0.06)",padding:"14px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:10}}>
@@ -1126,7 +1127,7 @@ useEffect(()=>{localStorage.setItem('customSports',JSON.stringify(customSports))
       {currentCustomKey&&<CustomSportScreen sel={sel} setScr={setScr} data={wData} onSave={handleSave} sportColors={sportColors} allSports={allSportsMap} sportKey={currentCustomKey}/>}
       {scr==="stats"&&<StatsScreen data={wData} sportColors={sportColors} customSports={customSports}/>}
       {scr==="goal"&&<GoalScreen data={wData} sportColors={sportColors} customSports={customSports}/>}
-      {scr==="setting"&&<SettingScreen profile={profile} setProfile={setProfile} sportColors={sportColors} setSportColors={setSportColors} customSports={customSports} setCustomSports={setCustomSports}/>}
+      {scr==="setting"&&<SettingScreen profile={profile} setProfile={setProfile} sportColors={sportColors} setSportColors={setSportColors} customSports={customSports} setCustomSports={setCustomSports} hiddenSports={hiddenSports} setHiddenSports={setHiddenSports}/>}
       <div style={{position:"fixed",bottom:0,left:0,right:0,background:"rgba(255,255,255,0.92)",backdropFilter:"blur(20px)",borderTop:"1px solid rgba(0,0,0,0.06)",padding:"10px 20px 14px",display:"flex",justifyContent:"space-around",zIndex:10}}>
         {NAV.map(it=>(
           <div key={it.k} onClick={()=>setScr(it.k)} style={{textAlign:"center",cursor:"pointer",padding:"4px 16px",borderRadius:12,background:scr===it.k?"#F0F0FF":"transparent",transition:"background 0.2s"}}>
