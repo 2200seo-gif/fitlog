@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 
 // ── 상수 ─────────────────────────────────────────────
 const COLOR_OPTIONS=[
@@ -1085,10 +1085,10 @@ export default function App(){
   const [scr,setScr]=useState("calendar");
   const [sel,setSel]=useState("2026-04-30");
   const [cur,setCur]=useState(new Date(2026,3,1));
-  const [wData,setWData]=useState(INIT_DATA);
-  const [profile,setProfile]=useState({name:"김민준",age:"32",height:"178",weight:"72",gender:"male"});
-  const [sportColors,setSportColors]=useState({running:"#FF6B6B",swimming:"#4ECDC4",crossfit:"#F4A261",gym:"#52C47A",cycling:"#9B8EC4"});
-  const [customSports,setCustomSports]=useState([]);
+ const [wData,setWData]=useState(()=>JSON.parse(localStorage.getItem('wData'))||INIT_DATA);
+const [profile,setProfile]=useState(()=>JSON.parse(localStorage.getItem('profile'))||{name:"김민준",age:"32",height:"178",weight:"72",gender:"male"});
+const [sportColors,setSportColors]=useState(()=>JSON.parse(localStorage.getItem('sportColors'))||{running:"#FF6B6B",swimming:"#4ECDC4",crossfit:"#F4A261",gym:"#52C47A",cycling:"#9B8EC4"});
+const [customSports,setCustomSports]=useState(()=>JSON.parse(localStorage.getItem('customSports'))||[]);
   const NAV=[{ic:"📅",l:"달력",k:"calendar"},{ic:"📊",l:"통계",k:"stats"},{ic:"🎯",l:"목표",k:"goal"},{ic:"⚙️",l:"설정",k:"setting"}];
   const allSportsMap={...BASE_SPORTS,...Object.fromEntries(customSports.map(s=>[s.id,s]))};
   const isCustomSport=(k)=>customSports.some(s=>s.id===k);
@@ -1104,6 +1104,10 @@ export default function App(){
   };
   // 현재 화면에서 어떤 커스텀 종목인지
   const currentCustomKey=isCustomSport(scr)?scr:null;
+  useEffect(()=>{localStorage.setItem('wData',JSON.stringify(wData));},[wData]);
+useEffect(()=>{localStorage.setItem('profile',JSON.stringify(profile));},[profile]);
+useEffect(()=>{localStorage.setItem('sportColors',JSON.stringify(sportColors));},[sportColors]);
+useEffect(()=>{localStorage.setItem('customSports',JSON.stringify(customSports));},[customSports]);
   return(
     <div style={{fontFamily:"'Pretendard','Apple SD Gothic Neo',sans-serif",background:"#F5F5F7",minHeight:"100vh"}}>
       <div style={{background:"rgba(255,255,255,0.85)",backdropFilter:"blur(20px)",borderBottom:"1px solid rgba(0,0,0,0.06)",padding:"14px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:10}}>
