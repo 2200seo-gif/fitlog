@@ -157,7 +157,7 @@ function WatchImport({col,watchType,setWatchType}){
           <div style={{fontSize:13,fontWeight:700,color:"#1A1A2E"}}>{watchType==="garmin"?"가민 커넥트에서 가져오기":"애플 건강 앱에서 가져오기"}</div>
           <div style={{fontSize:11,color:"#AAA",marginTop:2}}>{watchType==="garmin"?"활동 선택 → CSV 내보내기":"건강 앱 → 데이터 내보내기 → XML"}</div>
         </div>
-        <button style={{background:col,color:"#fff",border:"none",borderRadius:10,padding:"8px 14px",fontSize:12,fontWeight:700,cursor:"pointer",boxShadow:`0 3px 8px ${col}44`}}>{watchType==="garmin"?"CSV":"XML"}</button>
+        <button onClick={()=>{if(window.confirm("모든 데이터가 삭제돼요. 정말 초기화할까요?")){localStorage.clear();window.location.reload();}}} style={{width:"100%",background:"#FFF0F0",color:"#FF6B6B",border:"2px solid #FFD0D0",borderRadius:14,padding:"13px 0",fontSize:14,fontWeight:700,cursor:"pointer"}}>⚠️ 전체 데이터 초기화</button>
       </div>
     </div>
   );
